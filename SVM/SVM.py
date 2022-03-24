@@ -1,4 +1,5 @@
 import numpy as np
+np.set_printoptions(linewidth=np.inf)
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -56,6 +57,7 @@ class SVM(Solver):
 
         iter = 0
         while iter < self.train_iters:
+            print(f"----------------iter {iter}-----------------")
             i2, non_kkts = self.i2_heuristic(non_kkts)
             if i2 == -1:
                 break
@@ -63,9 +65,13 @@ class SVM(Solver):
             if i1 == i2:
                 continue
 
+            print(f"i1:{i1}")
+            print(f"i2:{i2}")
+
             # get corresponding sample
             x1, y1, alpha1 = self.sv[i1,:], self.sv_label[i1], self.alphas[i1]
             x2, y2, alpha2 = self.sv[i2,:], self.sv_label[i2], self.alphas[i2]
+            print(f"alpha1:{alpha1}, alpha2:{alpha2}")
 
             # calculate L & H
             low, high = self.cal_bound(alpha1, alpha2, y1, y2)
@@ -88,6 +94,7 @@ class SVM(Solver):
             alpha2_new = np.maximum(alpha2_new, low)
 
             alpha1_new = alpha1 + y1*y2*(alpha2-alpha2_new)
+            print(f"alpha1_new:{alpha1_new}, alpha2_new:{alpha2_new}")
 
             # update alpha1
             self.cal_b(alpha1_new, alpha2_new, err1, err2, i1, i2)
@@ -103,12 +110,14 @@ class SVM(Solver):
         sv_idx = (self.alphas != 0)
         self.sv_label = self.sv_label[sv_idx]
         self.sv = self.sv[sv_idx,:]
+        print(f"num of sv-s: {len(self.sv)}")
         self.alphas = self.alphas[sv_idx]
 
     def i1_heuristic(self, i_2, err_cache):
         err2 = err_cache[i_2]
         # get all 0<alpha<c
         non_bounded = np.argwhere((self.alphas>0) & (self.alphas<self.c)).reshape((1,-1))[0]
+        print(f"non bounded: {non_bounded}")
         if non_bounded.shape[0] > 0:
             # get max |E1-E2|
             if err2 >= 0:
@@ -127,6 +136,7 @@ class SVM(Solver):
         """
         i_2 = -1
         # select first
+        print(f"non kkts: {non_kkts}")
         for idx in non_kkts:
             # delete once checked; when non-kkt: delete&select and break, when kkt: delete and continue
             non_kkts = np.delete(non_kkts, np.argwhere(non_kkts==idx))
@@ -135,7 +145,9 @@ class SVM(Solver):
                 i_2 = idx
                 break
 
+        # [ 0  1  3  9 10 13 14 15 17 19 20 22 25 27 35 36 41 46 50 51 53 56 67 73 82 86 88 94]
         if i_2 == -1:
+            print("all i2 is -1, re-arrange idx")
             # all satisfies
             idxs = np.arange(self.alphas.shape[0])
             non_kkts = idxs[~(self.valid_kkt(idxs))]
@@ -235,7 +247,7 @@ if __name__ == '__main__':
     sns.pairplot(iris_df, hue=iris_df.columns[-1])
     # plt.show()
 
-    solver = MultiClassifier(solver=SVM, num_class=len(iris_data.target_names), c=1.0, kkt_thr=1e-3, train_iters=1e3, kernel_type='rbf', gamma_rbf=1.0)
+    solver = MultiClassifier(solver=SVM, num_class=len(iris_data.target_names), c=1.0, kkt_thr=1e-3, train_iters=1e2, kernel_type='rbf', gamma_rbf=1.0)
     solver.fit(X_train, y_train)
     y_pred = solver.predict(X_test)
     print(classification_report(y_test, y_pred, target_names=iris_data.target_names))
