@@ -123,7 +123,6 @@ class C45TreeClassifier:
         return pred
 
     def pep_pruning(self):
-
         pass
 
     def __get_split_attr(self, samples, attr_set):
