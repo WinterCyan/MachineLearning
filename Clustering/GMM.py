@@ -93,7 +93,7 @@ class GMM:
 
 
 if __name__ == '__main__':
-    X = genfromtxt("../TrainingData_GMM.csv", delimiter=',')
+    X = genfromtxt("../data/TrainingData_GMM.csv", delimiter=',')
     print(f"data shape: {X.shape}")
     plt.scatter(X[:,0],X[:,1])
     # plt.show()

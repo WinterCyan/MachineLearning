@@ -44,7 +44,7 @@ def plotChart(iterations, cost_num):
 def run():
     # data = load_iris()
     # print(data)
-    data = pd.read_csv('../irisdata.csv')
+    data = pd.read_csv('../data/irisdata.csv')
     print(data)
     X = data[['length','width']]
     y = data['Type']

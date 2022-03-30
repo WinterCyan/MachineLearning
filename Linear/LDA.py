@@ -28,7 +28,7 @@ class LDA:
 
 
 if __name__ == '__main__':
-    data = pd.read_csv("../watermelon3_0_Ch.csv").values
+    data = pd.read_csv("../data/watermelon3_0_Ch.csv").values
 
     X = data[:, 7:9].astype(float)
     y = data[:, 9]
